@@ -1541,6 +1541,27 @@ body.fullscreen .toolbar {
         -webkit-overflow-scrolling: touch;
         padding: var(--spacing-sm);
         scrollbar-width: thin;
+        position: relative;
+    }
+    
+    /* Scroll hint for mobile toolbar */
+    .toolbar::after {
+        content: '→';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        background: linear-gradient(to left, white 20%, transparent);
+        padding: 8px 16px;
+        pointer-events: none;
+        font-size: 20px;
+        color: var(--primary-color);
+        animation: slideHint 2s infinite;
+    }
+    
+    @keyframes slideHint {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
     }
     
     .toolbar::-webkit-scrollbar {
