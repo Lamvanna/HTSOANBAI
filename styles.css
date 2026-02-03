@@ -1041,13 +1041,30 @@ body {
         font-size: var(--font-size-sm);
     }
     
+    /* Mobile page container */
     .page-container {
         max-width: 100%;
         box-shadow: none;
+        margin: 0;
+        min-height: 100vh;
     }
     
+    /* Hide A4 border and label on mobile */
+    .page-container::before,
+    .page-container::after {
+        display: none;
+    }
+    
+    /* Mobile editor with comfortable padding */
     .editor-content {
-        padding: var(--spacing-lg);
+        padding: 16px;
+        min-height: calc(100vh - var(--header-height) - var(--toolbar-height) - 50px);
+    }
+    
+    .ql-editor {
+        font-size: 16px; /* Prevent zoom on iOS */
+        min-height: calc(100vh - 200px);
+    }
         min-height: auto;
     }
     
@@ -1548,18 +1565,31 @@ body.fullscreen .toolbar {
     .btn-toolbar {
         min-width: 44px;
         min-height: 44px;
+        font-size: 16px;
     }
     
     .select-toolbar {
         min-height: 44px;
-        font-size: 14px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 8px 12px;
+    }
+    
+    /* Color picker dropdowns */
+    .color-dropdown {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        max-width: 320px;
     }
     
     /* Modal adjustments */
     .modal-content {
         width: 95vw;
-        max-height: 90vh;
-        margin: var(--spacing-md);
+        max-height: 85vh;
+        margin: var(--spacing-sm);
+        padding: var(--spacing-md);
     }
     
     .shortcuts-grid {
