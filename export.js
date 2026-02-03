@@ -323,7 +323,7 @@ class ExportManager {
             // Save and open PDF
             const pdfBlob = pdf.output('blob');
             const pdfUrl = URL.createObjectURL(pdfBlob);
-            const fileName = `${this.sanitizeFilename(title)}.pdf`;
+            const downloadFileName = `${this.sanitizeFilename(title)}.pdf`;
             
             // Check if mobile device
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -336,7 +336,7 @@ class ExportManager {
                     // If popup blocked, create download link
                     const link = document.createElement('a');
                     link.href = pdfUrl;
-                    link.download = fileName;
+                    link.download = downloadFileName;
                     link.style.display = 'none';
                     document.body.appendChild(link);
                     link.click();
@@ -349,7 +349,7 @@ class ExportManager {
                 // Desktop: Download file
                 const link = document.createElement('a');
                 link.href = pdfUrl;
-                link.download = fileName;
+                link.download = downloadFileName;
                 link.click();
                 showToast(i18n.translate('exportedPDF') || 'Đã xuất file PDF thành công', 'success');
             }
