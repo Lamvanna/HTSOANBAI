@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soạn Thảo Văn Bản Việt-Khmer | Text Editor</title>
+    
+    <!-- Khmer Fonts từ Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&family=Bayon&family=Content:wght@400;700&family=Dangrek&family=Hanuman:wght@100;300;400;700;900&family=Kantumruy+Pro:wght@100;200;300;400;500;600;700&family=Khmer:wght@400&family=Koulen&family=Metal&family=Moul&family=Moulpali&family=Nokora:wght@100;300;400;700;900&family=Odor+Mean+Chey&family=Preahvihear:wght@400&family=Siemreap&family=Suwannaphum:wght@100;300;400;700;900&family=Taprom&display=swap" rel="stylesheet">
+    
+    <!-- Font Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Quill Editor CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="logo">
+                <i class="fas fa-file-word"></i>
+                <span class="logo-text" data-i18n="appName">Soạn Thảo Việt-Khmer</span>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <input type="text" id="documentTitle" class="document-title" placeholder="Tài liệu chưa có tên" data-i18n-placeholder="untitledDocument">
+        </div>
+        
+        <div class="header-right">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <button class="btn-icon" id="btnLanguage" title="Ngôn ngữ / ភាសា">
+                    <i class="fas fa-language"></i>
+                </button>
+                <div class="language-menu" id="languageMenu">
+                    <button data-lang="vi">🇻🇳 Tiếng Việt</button>
+                    <button data-lang="km">🇰🇭 ភាសាខ្មែរ</button>
+                </div>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="user-menu">
+                <button class="btn-icon" id="btnUser">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span data-i18n="guest">Khách</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <button id="btnMyDocuments" data-i18n="myDocuments"><i class="fas fa-folder"></i> Tài liệu của tôi</button>
+                    <button id="btnTemplates" data-i18n="templates"><i class="fas fa-file-alt"></i> Mẫu tài liệu</button>
+                    <button id="btnShortcuts" data-i18n="keyboardShortcuts"><i class="fas fa-keyboard"></i> Phím tắt</button>
+                    <button id="btnOpenSettings" data-i18n="settings"><i class="fas fa-cog"></i> Cài đặt</button>
+                    <div class="dropdown-divider"></div>
+                    <button id="btnImportJson" data-i18n="importDocument"><i class="fas fa-file-import"></i> Nhập tài liệu</button>
+                    <button id="btnFullscreen" data-i18n="fullscreen"><i class="fas fa-expand"></i> Toàn màn hình</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3 data-i18n="myDocuments">Tài liệu của tôi</h3>
+                <button class="btn-icon" id="btnCloseSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-search">
+                <input type="text" id="searchDocuments" placeholder="Tìm kiếm..." data-i18n-placeholder="search">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="documents-list" id="documentsList">
+                <!-- Documents will be loaded here dynamically -->
+            </div>
+            
+            <button class="btn-new-document" id="btnNewDocument">
+                <i class="fas fa-plus"></i>
+                <span data-i18n="newDocument">Tài liệu mới</span>
+            </button>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <!-- File Operations -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar" id="btnMenu" title="Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <button class="btn-toolbar" id="btnNew" title="Tài liệu mới" data-i18n-title="newDocument">
+                        <i class="fas fa-file"></i>
+                    </button>
+                    <button class="btn-toolbar" id="btnSave" title="Lưu" data-i18n-title="save">
+                        <i class="fas fa-save"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar btn-export" id="btnExportWord" title="Xuất Word">
+                        <i class="fas fa-file-word"></i>
+                        <span data-i18n="exportWord">Word</span>
+                    </button>
+                    <button class="btn-toolbar btn-export" id="btnExportPDF" title="Xuất PDF">
+                        <i class="fas fa-file-pdf"></i>
+                        <span data-i18n="exportPDF">PDF</span>
+                    </button>
+                    <button class="btn-toolbar" id="btnPrint" title="In" data-i18n-title="print">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Undo/Redo -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar" id="btnUndo" title="Hoàn tác" data-i18n-title="undo">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="btn-toolbar" id="btnRedo" title="Làm lại" data-i18n-title="redo">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Font Family -->
+                <div class="toolbar-group">
+                    <select class="select-toolbar" id="fontFamily">
+                        <optgroup label="Tiếng Việt">
+                            <option value="arial">Arial</option>
+                            <option value="times">Times New Roman</option>
+                            <option value="verdana">Verdana</option>
+                            <option value="georgia">Georgia</option>
+                            <option value="tahoma">Tahoma</option>
+                        </optgroup>
+                        <optgroup label="ពុម្ពអក្សរខ្មែរ (Khmer Fonts)">
+                            <option value="battambang">Battambang</option>
+                            <option value="bayon">Bayon</option>
+                            <option value="content">Content</option>
+                            <option value="dangrek">Dangrek</option>
+                            <option value="hanuman">Hanuman</option>
+                            <option value="kantumruy">Kantumruy Pro</option>
+                            <option value="khmer">Khmer</option>
+                            <option value="koulen">Koulen</option>
+                            <option value="metal">Metal</option>
+                            <option value="moul">Moul</option>
+                            <option value="moulpali">Moulpali</option>
+                            <option value="nokora">Nokora</option>
+                            <option value="odor">Odor Mean Chey</option>
+                            <option value="preahvihear">Preahvihear</option>
+                            <option value="siemreap">Siemreap</option>
+                            <option value="suwannaphum">Suwannaphum</option>
+                            <option value="taprom">Taprom</option>
+                        </optgroup>
+                    </select>
+                    
+                    <select class="select-toolbar select-small" id="fontSize">
+                        <option value="8px">8</option>
+                        <option value="9px">9</option>
+                        <option value="10px">10</option>
+                        <option value="11px">11</option>
+                        <option value="12px">12</option>
+                        <option value="14px" selected>14</option>
+                        <option value="16px">16</option>
+                        <option value="18px">18</option>
+                        <option value="20px">20</option>
+                        <option value="22px">22</option>
+                        <option value="24px">24</option>
+                        <option value="28px">28</option>
+                        <option value="32px">32</option>
+                        <option value="36px">36</option>
+                        <option value="48px">48</option>
+                        <option value="72px">72</option>
+                    </select>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Text Formatting -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar btn-format" id="btnBold" title="In đậm" data-i18n-title="bold">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="btn-toolbar btn-format" id="btnItalic" title="In nghiêng" data-i18n-title="italic">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="btn-toolbar btn-format" id="btnUnderline" title="Gạch chân" data-i18n-title="underline">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    <button class="btn-toolbar btn-format" id="btnStrike" title="Gạch ngang" data-i18n-title="strikethrough">
+                        <i class="fas fa-strikethrough"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Colors -->
+                <div class="toolbar-group">
+                    <div class="color-picker-wrapper">
+                        <button class="btn-toolbar color-picker-btn" id="btnTextColor" title="Màu chữ" data-i18n-title="textColor">
+                            <i class="fas fa-font"></i>
+                            <span class="color-indicator" id="textColorIndicator" style="background: #000000;"></span>
+                        </button>
+                        <div class="color-dropdown" id="textColorDropdown">
+                            <div class="color-presets">
+                                <button class="color-preset" data-color="#000000" style="background: #000000;" title="Đen"></button>
+                                <button class="color-preset" data-color="#FFFFFF" style="background: #FFFFFF; border: 1px solid #ddd;" title="Trắng"></button>
+                                <button class="color-preset" data-color="#FF0000" style="background: #FF0000;" title="Đỏ"></button>
+                                <button class="color-preset" data-color="#00FF00" style="background: #00FF00;" title="Xanh lá"></button>
+                                <button class="color-preset" data-color="#0000FF" style="background: #0000FF;" title="Xanh dương"></button>
+                                <button class="color-preset" data-color="#FFFF00" style="background: #FFFF00;" title="Vàng"></button>
+                                <button class="color-preset" data-color="#FF00FF" style="background: #FF00FF;" title="Hồng"></button>
+                                <button class="color-preset" data-color="#00FFFF" style="background: #00FFFF;" title="Xanh cyan"></button>
+                                <button class="color-preset" data-color="#FFA500" style="background: #FFA500;" title="Cam"></button>
+                                <button class="color-preset" data-color="#800080" style="background: #800080;" title="Tím"></button>
+                                <button class="color-preset" data-color="#808080" style="background: #808080;" title="Xám"></button>
+                                <button class="color-preset" data-color="#A52A2A" style="background: #A52A2A;" title="Nâu"></button>
+                            </div>
+                            <div class="color-custom">
+                                <label>Màu tùy chỉnh:</label>
+                                <input type="color" id="textColor" value="#000000">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <button class="btn-toolbar color-picker-btn" id="btnBgColor" title="Màu nền" data-i18n-title="backgroundColor">
+                            <i class="fas fa-fill-drip"></i>
+                            <span class="color-indicator" id="bgColorIndicator" style="background: #ffff00;"></span>
+                        </button>
+                        <div class="color-dropdown" id="bgColorDropdown">
+                            <div class="color-presets">
+                                <button class="color-preset" data-color="#FFFF00" style="background: #FFFF00;" title="Vàng"></button>
+                                <button class="color-preset" data-color="#00FF00" style="background: #00FF00;" title="Xanh lá"></button>
+                                <button class="color-preset" data-color="#00FFFF" style="background: #00FFFF;" title="Xanh cyan"></button>
+                                <button class="color-preset" data-color="#FF00FF" style="background: #FF00FF;" title="Hồng"></button>
+                                <button class="color-preset" data-color="#FFE4B5" style="background: #FFE4B5;" title="Moccasin"></button>
+                                <button class="color-preset" data-color="#FFB6C1" style="background: #FFB6C1;" title="Hồng nhạt"></button>
+                                <button class="color-preset" data-color="#87CEEB" style="background: #87CEEB;" title="Xanh trời"></button>
+                                <button class="color-preset" data-color="#98FB98" style="background: #98FB98;" title="Xanh nhạt"></button>
+                                <button class="color-preset" data-color="#DDA0DD" style="background: #DDA0DD;" title="Tím nhạt"></button>
+                                <button class="color-preset" data-color="#F0E68C" style="background: #F0E68C;" title="Khaki"></button>
+                                <button class="color-preset" data-color="#E0E0E0" style="background: #E0E0E0;" title="Xám nhạt"></button>
+                                <button class="color-preset" data-color="#FFA07A" style="background: #FFA07A;" title="Cam nhạt"></button>
+                            </div>
+                            <div class="color-custom">
+                                <label>Màu tùy chỉnh:</label>
+                                <input type="color" id="bgColor" value="#ffff00">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-toolbar" id="btnRemoveBgColor" title="Xóa màu nền" data-i18n-title="removeBackground">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Alignment -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar btn-align" data-align="left" title="Căn trái" data-i18n-title="alignLeft">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <button class="btn-toolbar btn-align" data-align="center" title="Căn giữa" data-i18n-title="alignCenter">
+                        <i class="fas fa-align-center"></i>
+                    </button>
+                    <button class="btn-toolbar btn-align" data-align="right" title="Căn phải" data-i18n-title="alignRight">
+                        <i class="fas fa-align-right"></i>
+                    </button>
+                    <button class="btn-toolbar btn-align" data-align="justify" title="Căn đều" data-i18n-title="alignJustify">
+                        <i class="fas fa-align-justify"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Lists -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar" id="btnBulletList" title="Danh sách gạch đầu dòng" data-i18n-title="bulletList">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="btn-toolbar" id="btnNumberList" title="Danh sách đánh số" data-i18n-title="numberList">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Insert -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar" id="btnInsertImage" title="Chèn hình ảnh" data-i18n-title="insertImage">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="btn-toolbar" id="btnInsertTable" title="Chèn bảng" data-i18n-title="insertTable">
+                        <i class="fas fa-table"></i>
+                    </button>
+                    <button class="btn-toolbar" id="btnInsertLink" title="Chèn liên kết" data-i18n-title="insertLink">
+                        <i class="fas fa-link"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                </div>
+
+                <!-- Tools -->
+                <div class="toolbar-group">
+                    <button class="btn-toolbar" id="btnFind" title="Tìm kiếm" data-i18n-title="find">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="btn-toolbar" id="btnStats" title="Thống kê" data-i18n-title="statistics">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Container -->
+            <div class="editor-wrapper">
+                <div class="page-container">
+                    <div id="editor" class="editor-content"></div>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span id="wordCount">0 <span data-i18n="words">từ</span></span>
+                    <span class="status-divider">|</span>
+                    <span id="charCount">0 <span data-i18n="characters">ký tự</span></span>
+                    <span class="status-divider">|</span>
+                    <span id="pageCount">1 <span data-i18n="page">trang</span></span>
+                </div>
+                <div class="status-right">
+                    <span id="saveStatus" class="save-status">
+                        <i class="fas fa-check-circle"></i>
+                        <span data-i18n="saved">Đã lưu</span>
+                    </span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Find & Replace -->
+    <div class="modal" id="findModal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 data-i18n="findReplace">Tìm & Thay thế</h3>
+                <button class="btn-close-modal" data-modal="findModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="findWhat">Tìm kiếm:</label>
+                    <input type="text" id="findText" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="replaceWith">Thay bằng:</label>
+                    <input type="text" id="replaceText" class="form-input">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="btnFindNext" data-i18n="findNext">Tìm tiếp</button>
+                    <button class="btn btn-secondary" id="btnReplace" data-i18n="replace">Thay thế</button>
+                    <button class="btn btn-secondary" id="btnReplaceAll" data-i18n="replaceAll">Thay thế tất cả</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Statistics -->
+    <div class="modal" id="statsModal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 data-i18n="statistics">Thống kê</h3>
+                <button class="btn-close-modal" data-modal="statsModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="words">Số từ</div>
+                        <div class="stat-value" id="statsWords">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="characters">Ký tự</div>
+                        <div class="stat-value" id="statsChars">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="charactersNoSpaces">Ký tự (không dấu cách)</div>
+                        <div class="stat-value" id="statsCharsNoSpace">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="paragraphs">Đoạn văn</div>
+                        <div class="stat-value" id="statsParagraphs">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="pages">Trang</div>
+                        <div class="stat-value" id="statsPages">1</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label" data-i18n="readingTime">Thời gian đọc</div>
+                        <div class="stat-value" id="statsReadTime">0 phút</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Insert Table -->
+    <div class="modal" id="tableModal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 data-i18n="insertTable">Chèn bảng</h3>
+                <button class="btn-close-modal" data-modal="tableModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="rows">Số hàng:</label>
+                    <input type="number" id="tableRows" class="form-input" value="3" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="columns">Số cột:</label>
+                    <input type="number" id="tableCols" class="form-input" value="3" min="1" max="10">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="btnInsertTableConfirm" data-i18n="insert">Chèn</button>
+                    <button class="btn btn-secondary" data-modal="tableModal" class="btn-close-modal" data-i18n="cancel">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Insert Link -->
+    <div class="modal" id="linkModal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 data-i18n="insertLink">Chèn liên kết</h3>
+                <button class="btn-close-modal" data-modal="linkModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="linkText">Văn bản hiển thị:</label>
+                    <input type="text" id="linkText" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="linkUrl">URL:</label>
+                    <input type="url" id="linkUrl" class="form-input" placeholder="https://">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="btnInsertLinkConfirm" data-i18n="insert">Chèn</button>
+                    <button class="btn btn-secondary btn-close-modal" data-modal="linkModal" data-i18n="cancel">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p data-i18n="loading">Đang xử lý...</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Thông báo</span>
+    </div>
+
+    <!-- Modal: Settings -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content modal-medium">
+            <div class="modal-header">
+                <h3 data-i18n="settings">Cài đặt</h3>
+                <button class="btn-close-modal" data-modal="settingsModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4 data-i18n="generalSettings">Cài đặt chung</h4>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="settingAutoSave" checked>
+                            <span data-i18n="autoSave">Tự động lưu</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="autoSaveInterval">Tần suất tự động lưu (giây):</label>
+                        <input type="number" id="settingAutoSaveInterval" class="form-input" value="30" min="10" max="300">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="defaultFont">Font chữ mặc định:</label>
+                        <select id="settingDefaultFont" class="form-input">
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Battambang">Battambang</option>
+                            <option value="Hanuman">Hanuman</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="defaultFontSize">Cỡ chữ mặc định:</label>
+                        <select id="settingDefaultFontSize" class="form-input">
+                            <option value="12px">12</option>
+                            <option value="14px" selected>14</option>
+                            <option value="16px">16</option>
+                            <option value="18px">18</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4 data-i18n="appearance">Giao diện</h4>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="settingDarkMode">
+                            <span data-i18n="darkMode">Chế độ tối</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="settingCompactToolbar">
+                            <span data-i18n="compactToolbar">Toolbar thu gọn</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4 data-i18n="storage">Dung lượng</h4>
+                    <div class="storage-info">
+                        <p><strong data-i18n="totalDocuments">Tổng số tài liệu:</strong> <span id="storageDocCount">0</span></p>
+                        <p><strong data-i18n="usedStorage">Dung lượng đã dùng:</strong> <span id="storageUsed">0 KB</span></p>
+                        <button class="btn btn-danger" id="btnClearAllData" data-i18n="clearAllData">Xóa tất cả dữ liệu</button>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="btnSaveSettings" data-i18n="saveSettings">Lưu cài đặt</button>
+                    <button class="btn btn-secondary btn-close-modal" data-modal="settingsModal" data-i18n="cancel">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Keyboard Shortcuts -->
+    <div class="modal" id="shortcutsModal">
+        <div class="modal-content modal-medium">
+            <div class="modal-header">
+                <h3 data-i18n="keyboardShortcuts">Phím tắt</h3>
+                <button class="btn-close-modal" data-modal="shortcutsModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-grid">
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>S</kbd>
+                        <span data-i18n="save">Lưu</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>N</kbd>
+                        <span data-i18n="newDocument">Tài liệu mới</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>P</kbd>
+                        <span data-i18n="print">In</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>F</kbd>
+                        <span data-i18n="find">Tìm kiếm</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>B</kbd>
+                        <span data-i18n="bold">In đậm</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>I</kbd>
+                        <span data-i18n="italic">In nghiêng</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>U</kbd>
+                        <span data-i18n="underline">Gạch chân</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>K</kbd>
+                        <span data-i18n="insertLink">Chèn liên kết</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>
+                        <span data-i18n="statistics">Thống kê</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>ESC</kbd>
+                        <span data-i18n="closeModal">Đóng cửa sổ</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>F11</kbd>
+                        <span data-i18n="fullscreen">Toàn màn hình</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>Z</kbd>
+                        <span data-i18n="undo">Hoàn tác</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Templates -->
+    <div class="modal" id="templatesModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 data-i18n="templates">Mẫu tài liệu</h3>
+                <button class="btn-close-modal" data-modal="templatesModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="templates-grid" id="templatesGrid">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button (Mobile) -->
+    <div class="fab" id="fab">
+        <button class="fab-main" id="fabMain">
+            <i class="fas fa-plus"></i>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab-item" id="fabNewDoc" title="Tài liệu mới">
+                <i class="fas fa-file"></i>
+            </button>
+            <button class="fab-item" id="fabSave" title="Lưu">
+                <i class="fas fa-save"></i>
+            </button>
+            <button class="fab-item" id="fabExport" title="Xuất file">
+                <i class="fas fa-download"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden file input for image upload -->
+    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+    <input type="file" id="importJsonInput" accept=".json" style="display: none;">
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="i18n.js"></script>
+    <script src="storage.js"></script>
+    <script src="editor.js"></script>
+    <script src="export.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
