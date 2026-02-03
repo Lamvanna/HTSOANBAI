@@ -1481,23 +1481,40 @@ body.fullscreen .toolbar {
         display: block;
     }
     
-    /* Hide some toolbar items on mobile */
-    .toolbar-group:nth-child(n+5) {
-        display: none;
-    }
-    
-    /* Mobile-optimized toolbar */
+    /* Mobile-optimized toolbar - show all important buttons */
     .toolbar {
         overflow-x: auto;
         overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         padding: var(--spacing-sm);
+        scrollbar-width: thin;
+    }
+    
+    .toolbar::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .toolbar::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 2px;
+    }
+    
+    /* Make toolbar groups display inline for horizontal scroll */
+    .toolbar-group {
+        display: inline-flex;
+        flex-wrap: nowrap;
+        margin-right: var(--spacing-sm);
     }
     
     /* Better touch targets */
     .btn-toolbar {
         min-width: 44px;
         min-height: 44px;
+    }
+    
+    .select-toolbar {
+        min-height: 44px;
+        font-size: 14px;
     }
     
     /* Modal adjustments */
