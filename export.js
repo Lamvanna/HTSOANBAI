@@ -71,16 +71,37 @@ class ExportManager {
 
             // Download the file
             const url = URL.createObjectURL(converted);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${this.sanitizeFilename(title)}.docx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const downloadFileName = `${this.sanitizeFilename(title)}.docx`;
+            
+            // Check if mobile
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // For mobile: try to open or download
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = downloadFileName;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                showToast('Word đã tải xuống. Kiểm tra thư mục Downloads', 'success');
+            } else {
+                // For desktop
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = downloadFileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+                showToast(i18n.translate('exportedWord') || 'Đã xuất file Word thành công', 'success');
+            }
 
             this.hideLoading();
-            showToast(i18n.translate('exportedWord') || 'Đã xuất file Word thành công', 'success');
         } catch (error) {
             console.error('Error exporting to Word:', error);
             this.hideLoading();
