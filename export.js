@@ -217,14 +217,14 @@ class ExportManager {
                 position: absolute;
                 left: -9999px;
                 top: 0;
-                width: 210mm;
-                min-height: 297mm;
+                width: 794px;
+                min-height: 1123px;
                 background-color: white;
-                padding: 25mm 20mm;
+                padding: 95px 76px;
                 box-sizing: border-box;
                 font-family: Arial, sans-serif;
-                font-size: 12pt;
-                line-height: 1.5;
+                font-size: 14px;
+                line-height: 1.6;
                 color: #000000;
             `;
             
@@ -243,7 +243,7 @@ class ExportManager {
 
             // Use html2canvas with optimized settings
             const canvas = await html2canvas(tempContainer, {
-                scale: 3, // Higher quality for better text rendering
+                scale: 2, // Reduce scale for proper sizing
                 useCORS: true,
                 allowTaint: false,
                 backgroundColor: '#ffffff',
@@ -272,15 +272,6 @@ class ExportManager {
             const { jsPDF } = window.jspdf;
             const pageWidth = 210; // A4 width in mm
             const pageHeight = 297; // A4 height in mm
-            const marginLeft = 15; // 15mm left margin
-            const marginRight = 15; // 15mm right margin
-            const marginTop = 15; // 15mm top margin
-            const marginBottom = 15; // 15mm bottom margin
-            
-            const contentWidth = pageWidth - marginLeft - marginRight; // 180mm
-            const contentHeight = pageHeight - marginTop - marginBottom; // 267mm
-            
-            const imgHeight = (canvas.height * contentWidth) / canvas.width;
             
             const pdf = new jsPDF({
                 orientation: 'portrait',
@@ -289,20 +280,23 @@ class ExportManager {
                 compress: true
             });
 
+            const imgWidth = pageWidth;
+            const imgHeight = (canvas.height * pageWidth) / canvas.width;
+            
             let heightLeft = imgHeight;
-            let position = marginTop;
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            let position = 0;
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-            // Add first page with margins
-            pdf.addImage(imgData, 'JPEG', marginLeft, position, contentWidth, imgHeight, undefined, 'FAST');
-            heightLeft -= contentHeight;
+            // Add first page - full width
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+            heightLeft -= pageHeight;
 
             // Add additional pages if content is longer than one page
             while (heightLeft > 0) {
-                position = marginTop - (imgHeight - heightLeft);
+                position = heightLeft - imgHeight;
                 pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', marginLeft, position, contentWidth, imgHeight, undefined, 'FAST');
-                heightLeft -= contentHeight;
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+                heightLeft -= pageHeight;
             }
 
             // Save PDF
