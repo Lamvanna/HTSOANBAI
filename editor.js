@@ -274,8 +274,23 @@ class TextEditor {
 
     // Toggle format (bold, italic, etc.)
     toggleFormat(format) {
+        const selection = this.quill.getSelection();
+        if (!selection) {
+            this.quill.focus();
+            return;
+        }
+        
         const currentFormat = this.quill.getFormat();
-        this.quill.format(format, !currentFormat[format]);
+        const newValue = !currentFormat[format];
+        
+        if (selection.length === 0) {
+            // No text selected - apply format to cursor position for next typing
+            this.quill.format(format, newValue);
+        } else {
+            // Text selected - apply format to selection
+            this.quill.formatText(selection.index, selection.length, format, newValue);
+        }
+        
         this.quill.focus();
     }
 
