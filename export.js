@@ -299,11 +299,25 @@ class ExportManager {
                 heightLeft -= pageHeight;
             }
 
-            // Save PDF
-            pdf.save(`${this.sanitizeFilename(title)}.pdf`);
+            // Save and open PDF
+            const pdfBlob = pdf.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            
+            // For mobile: Open in new tab to view
+            if (isMobileDevice()) {
+                window.open(pdfUrl, '_blank');
+                showToast(i18n.translate('exportedPDF') || 'PDF đã mở trong tab mới', 'success');
+            } else {
+                // For desktop: Download file
+                const link = document.createElement('a');
+                link.href = pdfUrl;
+                link.download = `${this.sanitizeFilename(title)}.pdf`;
+                link.click();
+                URL.revokeObjectURL(pdfUrl);
+                showToast(i18n.translate('exportedPDF') || 'Đã xuất file PDF thành công', 'success');
+            }
 
             this.hideLoading();
-            showToast(i18n.translate('exportedPDF') || 'Đã xuất file PDF thành công', 'success');
         } catch (error) {
             console.error('Error exporting to PDF:', error);
             this.hideLoading();
