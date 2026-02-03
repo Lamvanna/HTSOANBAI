@@ -606,29 +606,42 @@ body {
 
 .page-container {
     width: 100%;
-    max-width: 816px; /* A4 width at 96 DPI */
+    max-width: 210mm; /* A4 width */
     background: var(--bg-primary);
     box-shadow: var(--shadow-lg);
-    min-height: 1056px; /* A4 height at 96 DPI */
+    min-height: 297mm; /* A4 height */
     position: relative;
+    margin: 20px auto;
 }
 
-/* A4 Paper Border */
+/* A4 Paper Border with margins */
 .page-container::before {
     content: '';
     position: absolute;
-    top: 96px;
-    left: 72px;
-    right: 72px;
-    bottom: 96px;
-    border: 1px dashed rgba(0, 0, 0, 0.1);
+    top: 25mm;    /* Top margin */
+    left: 20mm;   /* Left margin */
+    right: 20mm;  /* Right margin */
+    bottom: 25mm; /* Bottom margin */
+    border: 1px dashed rgba(0, 122, 255, 0.3);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Corner marks for A4 */
+.page-container::after {
+    content: 'A4 (210mm × 297mm)';
+    position: absolute;
+    bottom: 5mm;
+    right: 5mm;
+    font-size: 8px;
+    color: rgba(0, 0, 0, 0.3);
     pointer-events: none;
     z-index: 1;
 }
 
 .editor-content {
-    min-height: 1056px;
-    padding: 96px 72px; /* 1 inch margins */
+    min-height: 297mm;
+    padding: 25mm 20mm; /* Standard A4 margins */
     font-size: 14px;
     line-height: 1.6;
     position: relative;

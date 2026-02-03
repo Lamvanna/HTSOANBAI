@@ -217,13 +217,13 @@ class ExportManager {
                 position: absolute;
                 left: -9999px;
                 top: 0;
-                width: 700px;
-                min-height: 990px;
+                width: 210mm;
+                min-height: 297mm;
                 background-color: white;
-                padding: 20px;
+                padding: 25mm 20mm;
                 box-sizing: border-box;
                 font-family: Arial, sans-serif;
-                font-size: 12px;
+                font-size: 12pt;
                 line-height: 1.5;
                 color: #000000;
             `;
