@@ -302,20 +302,39 @@ class ExportManager {
             // Save and open PDF
             const pdfBlob = pdf.output('blob');
             const pdfUrl = URL.createObjectURL(pdfBlob);
+            const fileName = `${this.sanitizeFilename(title)}.pdf`;
             
-            // For mobile: Open in new tab to view
-            if (isMobileDevice()) {
-                window.open(pdfUrl, '_blank');
-                showToast(i18n.translate('exportedPDF') || 'PDF đã mở trong tab mới', 'success');
+            // Check if mobile device
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Try to open in new tab
+                const newWindow = window.open(pdfUrl, '_blank');
+                
+                if (!newWindow) {
+                    // If popup blocked, create download link
+                    const link = document.createElement('a');
+                    link.href = pdfUrl;
+                    link.download = fileName;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast('PDF đã tải xuống. Kiểm tra thư mục Downloads', 'success');
+                } else {
+                    showToast('PDF đã mở trong tab mới', 'success');
+                }
             } else {
-                // For desktop: Download file
+                // Desktop: Download file
                 const link = document.createElement('a');
                 link.href = pdfUrl;
-                link.download = `${this.sanitizeFilename(title)}.pdf`;
+                link.download = fileName;
                 link.click();
-                URL.revokeObjectURL(pdfUrl);
                 showToast(i18n.translate('exportedPDF') || 'Đã xuất file PDF thành công', 'success');
             }
+            
+            // Clean up after a delay
+            setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
 
             this.hideLoading();
         } catch (error) {
