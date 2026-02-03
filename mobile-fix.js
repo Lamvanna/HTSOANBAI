@@ -306,14 +306,54 @@ class MobileEventFix {
             element.style.opacity = '1';
         }, { passive: true });
     }
+    
+    // Toggle debug mode
+    toggleDebug() {
+        this.debugMode = !this.debugMode;
+        this.log(this.debugMode ? '✅ Debug mode ON' : '⛔ Debug mode OFF');
+        
+        // Update button text
+        const debugBtn = document.getElementById('btnToggleDebug');
+        const debugText = document.getElementById('debugModeText');
+        if (debugText) {
+            debugText.textContent = this.debugMode ? 'Debug: ON' : 'Debug: OFF';
+        }
+        
+        return this.debugMode;
+    }
 }
+
+// Global instance
+let mobileEventFix = null;
 
 // Initialize mobile fixes when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        new MobileEventFix();
+        mobileEventFix = new MobileEventFix();
+        
+        // Show debug toggle button only on mobile
+        if (mobileEventFix.isMobile) {
+            const debugBtn = document.getElementById('btnToggleDebug');
+            if (debugBtn) {
+                debugBtn.style.display = 'block';
+                debugBtn.addEventListener('click', () => {
+                    mobileEventFix.toggleDebug();
+                });
+            }
+        }
     });
 } else {
     // DOM already loaded
-    new MobileEventFix();
+    mobileEventFix = new MobileEventFix();
+    
+    // Show debug toggle button only on mobile
+    if (mobileEventFix.isMobile) {
+        const debugBtn = document.getElementById('btnToggleDebug');
+        if (debugBtn) {
+            debugBtn.style.display = 'block';
+            debugBtn.addEventListener('click', () => {
+                mobileEventFix.toggleDebug();
+            });
+        }
+    }
 }
