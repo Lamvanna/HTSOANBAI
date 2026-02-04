@@ -713,7 +713,23 @@
     <!-- Custom Scripts -->
     <script src="mobile-fix.js"></script>
     <script src="i18n.js"></script>
+    <!-- Verify i18n immediately after loading -->
+    <script>
+        console.log('🔍 After i18n.js:', {
+            'typeof window.i18n': typeof window.i18n,
+            'window.i18n exists': !!window.i18n,
+            'i18n variable': typeof i18n !== 'undefined' ? 'exists' : 'undefined'
+        });
+    </script>
     <script src="storage.js"></script>
+    <!-- Verify storage immediately after loading -->
+    <script>
+        console.log('🔍 After storage.js:', {
+            'typeof window.storageManager': typeof window.storageManager,
+            'window.storageManager exists': !!window.storageManager,
+            'storageManager variable': typeof storageManager !== 'undefined' ? 'exists' : 'undefined'
+        });
+    </script>
     <script src="editor.js"></script>
     <script src="export.js"></script>
     <script src="app.js"></script>
