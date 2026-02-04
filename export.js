@@ -250,7 +250,7 @@ class ExportManager {
                 box-sizing: border-box;
                 font-family: Arial, sans-serif;
                 font-size: 14px;
-                line-height: 1.8;
+                line-height: 2.2;
                 color: #000000;
                 word-wrap: break-word;
                 overflow-wrap: break-word;

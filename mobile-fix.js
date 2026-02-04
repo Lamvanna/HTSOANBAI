@@ -102,7 +102,7 @@ class MobileEventFix {
     // Fix button click events on mobile
     fixButtonEvents() {
         // Get all toolbar buttons that don't already have touch handlers
-        const buttons = document.querySelectorAll('.toolbar button, .btn-icon, .fab-button');
+        const buttons = document.querySelectorAll('.toolbar button, .btn-icon, .fab-button, .btn-toolbar');
         
         let fixedCount = 0;
         buttons.forEach(button => {
@@ -111,31 +111,75 @@ class MobileEventFix {
             button.dataset.touchFixed = 'true';
             fixedCount++;
             
-            // Add touch feedback
-            let touchHandled = false;
+            // Remove any conflicting event listeners
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
             
-            button.addEventListener('touchstart', (e) => {
-                touchHandled = true;
-                button.classList.add('touching');
-                button.style.opacity = '0.7';
-                this.log(`Touch: ${button.id || button.className}`);
+            // Add precise touch handling
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isTouching = false;
+            
+            newButton.addEventListener('touchstart', (e) => {
+                isTouching = true;
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                
+                newButton.classList.add('touching');
+                newButton.style.opacity = '0.7';
+                newButton.style.transform = 'scale(0.95)';
+                this.log(`Touch start: ${newButton.id || newButton.className}`);
             }, { passive: true });
             
-            button.addEventListener('touchend', (e) => {
-                button.classList.remove('touching');
-                button.style.opacity = '1';
-                touchHandled = false;
+            newButton.addEventListener('touchmove', (e) => {
+                if (!isTouching) return;
+                
+                const touch = e.touches[0];
+                const deltaX = Math.abs(touch.clientX - touchStartX);
+                const deltaY = Math.abs(touch.clientY - touchStartY);
+                
+                // If moved more than 10px, cancel touch
+                if (deltaX > 10 || deltaY > 10) {
+                    isTouching = false;
+                    newButton.classList.remove('touching');
+                    newButton.style.opacity = '1';
+                    newButton.style.transform = 'scale(1)';
+                }
             }, { passive: true });
             
-            button.addEventListener('touchcancel', () => {
-                touchHandled = false;
-                button.classList.remove('touching');
-                button.style.opacity = '1';
+            newButton.addEventListener('touchend', (e) => {
+                if (isTouching) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Trigger actual click
+                    const clickEvent = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    });
+                    newButton.dispatchEvent(clickEvent);
+                    
+                    this.log(`Touch end & click: ${newButton.id || newButton.className}`);
+                }
+                
+                newButton.classList.remove('touching');
+                newButton.style.opacity = '1';
+                newButton.style.transform = 'scale(1)';
+                isTouching = false;
+            }, { passive: false });
+            
+            newButton.addEventListener('touchcancel', () => {
+                isTouching = false;
+                newButton.classList.remove('touching');
+                newButton.style.opacity = '1';
+                newButton.style.transform = 'scale(1)';
             });
         });
         
         if (fixedCount > 0) {
-            this.log(`Fixed ${fixedCount} buttons`);
+            this.log(`Fixed ${fixedCount} buttons with precise touch`);
         }
     }
 
