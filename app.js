@@ -5,11 +5,45 @@
 class Application {
     constructor() {
         this.initialized = false;
+        this.loadAttempts = 0;
+        this.maxLoadAttempts = 50; // 5 seconds max
         this.init();
+    }
+
+    hideLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.5s';
+            setTimeout(() => loadingScreen.remove(), 500);
+        }
+    }
+
+    showError(message) {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #ff6b6b; margin-bottom: 20px;"></i>
+                    <h2 style="margin: 10px 0; font-size: 20px; color: white;">Lỗi tải trang</h2>
+                    <p style="margin: 10px 0; opacity: 0.9; color: white;">${message}</p>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 12px 24px; background: white; color: #667eea; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold;">Tải lại trang</button>
+                </div>
+            `;
+        }
     }
 
     init() {
         if (this.initialized) return;
+        
+        this.loadAttempts++;
+        
+        // Check if max attempts reached
+        if (this.loadAttempts > this.maxLoadAttempts) {
+            console.error('❌ Failed to load dependencies');
+            this.showError('Không thể tải thư viện. Vui lòng kiểm tra kết nối internet và tải lại trang.');
+            return;
+        }
         
         // Wait for all dependencies to load
         if (typeof Quill === 'undefined' || typeof i18n === 'undefined') {
@@ -17,13 +51,21 @@ class Application {
             return;
         }
 
-        this.setupModalHandlers();
-        this.setupKeyboardShortcuts();
-        this.setupResponsiveHandlers();
-        this.setupUserInteractions();
-        
-        this.initialized = true;
-        console.log('✅ Application initialized successfully');
+        try {
+            this.setupModalHandlers();
+            this.setupKeyboardShortcuts();
+            this.setupResponsiveHandlers();
+            this.setupUserInteractions();
+            
+            this.initialized = true;
+            console.log('✅ Application initialized successfully');
+            
+            // Hide loading screen after successful init
+            setTimeout(() => this.hideLoadingScreen(), 500);
+        } catch (error) {
+            console.error('❌ Initialization error:', error);
+            this.showError('Lỗi khởi tạo ứng dụng: ' + error.message);
+        }
     }
 
     // Setup modal open/close handlers
