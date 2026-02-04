@@ -111,75 +111,50 @@ class MobileEventFix {
             button.dataset.touchFixed = 'true';
             fixedCount++;
             
-            // Remove any conflicting event listeners
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            // Add precise touch handling
+            // Add precise touch handling without breaking existing events
             let touchStartX = 0;
             let touchStartY = 0;
-            let isTouching = false;
+            let touchStartTime = 0;
             
-            newButton.addEventListener('touchstart', (e) => {
-                isTouching = true;
+            button.addEventListener('touchstart', (e) => {
                 const touch = e.touches[0];
                 touchStartX = touch.clientX;
                 touchStartY = touch.clientY;
+                touchStartTime = Date.now();
                 
-                newButton.classList.add('touching');
-                newButton.style.opacity = '0.7';
-                newButton.style.transform = 'scale(0.95)';
-                this.log(`Touch start: ${newButton.id || newButton.className}`);
+                button.classList.add('touching');
+                button.style.opacity = '0.7';
+                this.log(`Touch: ${button.id || button.className}`);
             }, { passive: true });
             
-            newButton.addEventListener('touchmove', (e) => {
-                if (!isTouching) return;
+            button.addEventListener('touchend', (e) => {
+                const touchDuration = Date.now() - touchStartTime;
                 
-                const touch = e.touches[0];
-                const deltaX = Math.abs(touch.clientX - touchStartX);
-                const deltaY = Math.abs(touch.clientY - touchStartY);
-                
-                // If moved more than 10px, cancel touch
-                if (deltaX > 10 || deltaY > 10) {
-                    isTouching = false;
-                    newButton.classList.remove('touching');
-                    newButton.style.opacity = '1';
-                    newButton.style.transform = 'scale(1)';
+                // Only process if it was a quick tap (< 500ms)
+                if (touchDuration < 500) {
+                    const touch = e.changedTouches[0];
+                    const deltaX = Math.abs(touch.clientX - touchStartX);
+                    const deltaY = Math.abs(touch.clientY - touchStartY);
+                    
+                    // Only trigger if didn't move much (< 10px)
+                    if (deltaX < 10 && deltaY < 10) {
+                        // Let the default click handler work
+                        this.log(`Valid tap: ${button.id || button.className}`);
+                    }
                 }
+                
+                button.classList.remove('touching');
+                button.style.opacity = '1';
             }, { passive: true });
             
-            newButton.addEventListener('touchend', (e) => {
-                if (isTouching) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Trigger actual click
-                    const clickEvent = new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                        view: window
-                    });
-                    newButton.dispatchEvent(clickEvent);
-                    
-                    this.log(`Touch end & click: ${newButton.id || newButton.className}`);
-                }
-                
-                newButton.classList.remove('touching');
-                newButton.style.opacity = '1';
-                newButton.style.transform = 'scale(1)';
-                isTouching = false;
-            }, { passive: false });
-            
-            newButton.addEventListener('touchcancel', () => {
-                isTouching = false;
-                newButton.classList.remove('touching');
-                newButton.style.opacity = '1';
-                newButton.style.transform = 'scale(1)';
+            button.addEventListener('touchcancel', () => {
+                button.classList.remove('touching');
+                button.style.opacity = '1';
             });
         });
         
         if (fixedCount > 0) {
-            this.log(`Fixed ${fixedCount} buttons with precise touch`);
+            this.log(`Fixed ${fixedCount} buttons`);
         }
     }
 
