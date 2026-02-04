@@ -44,6 +44,22 @@
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
         @keyframes loading { 0% { width: 0%; } 100% { width: 100%; } }
     </style>
+    <script>
+        // Auto-hide loading screen after 15s (fallback if app doesn't load)
+        setTimeout(function() {
+            var loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen && loadingScreen.style.opacity !== '0') {
+                console.warn('⚠️ Loading timeout - forcing app to show');
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.transition = 'opacity 0.5s';
+                setTimeout(function() { 
+                    loadingScreen.remove(); 
+                    // Show error message in app
+                    document.body.innerHTML += '<div style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ff6b6b; color: white; padding: 15px 30px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><strong>⚠️ Cảnh báo:</strong> Một số tính năng có thể không hoạt động. Vui lòng <a href="javascript:location.reload()" style="color: white; text-decoration: underline;">tải lại trang</a>.</div>';
+                }, 500);
+            }
+        }, 15000); // 15 seconds
+    </script>
     
     <!-- Header -->
     <header class="app-header">

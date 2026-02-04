@@ -47,6 +47,11 @@ class Application {
         
         this.loadAttempts++;
         
+        // Log progress for debugging
+        if (this.loadAttempts === 1 || this.loadAttempts % 10 === 0) {
+            console.log(`🔄 Init attempt ${this.loadAttempts}/${this.maxLoadAttempts}`);
+        }
+        
         // Check if max attempts reached
         if (this.loadAttempts > this.maxLoadAttempts) {
             const missingDeps = this.getMissingDependencies();
