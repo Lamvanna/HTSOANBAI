@@ -12,11 +12,22 @@ class Application {
     }
 
     checkDependencies() {
-        return this.requiredDependencies.every(dep => typeof window[dep] !== 'undefined');
+        // Check if required objects exist and are properly initialized
+        if (typeof window['Quill'] === 'undefined') return false;
+        if (typeof window['i18n'] === 'undefined') return false;
+        // Also check if editor and storage manager exist
+        if (typeof window['editor'] === 'undefined') return false;
+        if (typeof window['storageManager'] === 'undefined') return false;
+        return true;
     }
 
     getMissingDependencies() {
-        return this.requiredDependencies.filter(dep => typeof window[dep] === 'undefined');
+        const missing = [];
+        if (typeof window['Quill'] === 'undefined') missing.push('Quill');
+        if (typeof window['i18n'] === 'undefined') missing.push('i18n');
+        if (typeof window['editor'] === 'undefined') missing.push('editor');
+        if (typeof window['storageManager'] === 'undefined') missing.push('storageManager');
+        return missing;
     }
 
     hideLoadingScreen() {

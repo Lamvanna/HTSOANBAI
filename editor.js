@@ -7,14 +7,31 @@ class TextEditor {
         this.quill = null;
         this.currentDocumentId = null;
         this.autoSaveInterval = null;
-        this.init();
+        // Don't init immediately - wait for DOM
+        this.initialized = false;
     }
 
     init() {
-        this.initializeQuill();
-        this.setupToolbarHandlers();
-        this.setupEditorEvents();
-        this.startAutoSave();
+        if (this.initialized) return;
+        
+        // Check if DOM is ready and editor element exists
+        const editorElement = document.getElementById('editor');
+        if (!editorElement) {
+            console.warn('⚠️ Editor element not found, retrying...');
+            setTimeout(() => this.init(), 100);
+            return;
+        }
+
+        try {
+            this.initializeQuill();
+            this.setupToolbarHandlers();
+            this.setupEditorEvents();
+            this.startAutoSave();
+            this.initialized = true;
+        } catch (error) {
+            console.error('❌ Editor init failed:', error);
+            setTimeout(() => this.init(), 500);
+        }
     }
 
     // Initialize Quill Editor with custom configuration
@@ -617,13 +634,20 @@ class TextEditor {
     }
 }
 
-// Initialize editor
+// Initialize editor (create instance immediately but init when DOM ready)
 const editor = new TextEditor();
 
-// Run additional setup when DOM ready
-document.addEventListener('DOMContentLoaded', () => {
+// Start initialization when DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        editor.init();
+        console.log('✅ Editor initialized');
+    });
+} else {
+    // DOM already loaded
+    editor.init();
     console.log('✅ Editor initialized');
-});
+}
 
 // Helper function to show toast notifications
 function showToast(message, type = 'success') {
