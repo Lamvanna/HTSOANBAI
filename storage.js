@@ -2,11 +2,36 @@
 // STORAGE MANAGER - LocalStorage Management
 // ============================================
 
+// Check storage availability and suppress tracking prevention warnings
+(function checkStorageAvailability() {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('__storage_test__', '1');
+            localStorage.removeItem('__storage_test__');
+        }
+    } catch (e) {
+        console.warn('⚠️ Storage access limited, but app will continue');
+    }
+})();
+
 class StorageManager {
     constructor() {
         this.STORAGE_KEY = 'viet_khmer_documents';
         this.SETTINGS_KEY = 'viet_khmer_settings';
         this.currentLanguage = 'vi';
+        this.storageAvailable = this.checkStorage();
+    }
+
+    // Check if localStorage is available
+    checkStorage() {
+        try {
+            const test = '__storage_test__';
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
     // Generate unique ID
