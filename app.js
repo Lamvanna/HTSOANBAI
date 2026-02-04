@@ -6,8 +6,17 @@ class Application {
     constructor() {
         this.initialized = false;
         this.loadAttempts = 0;
-        this.maxLoadAttempts = 50; // 5 seconds max
+        this.maxLoadAttempts = 100; // 10 seconds max (better for slow mobile)
+        this.requiredDependencies = ['Quill', 'i18n'];
         this.init();
+    }
+
+    checkDependencies() {
+        return this.requiredDependencies.every(dep => typeof window[dep] !== 'undefined');
+    }
+
+    getMissingDependencies() {
+        return this.requiredDependencies.filter(dep => typeof window[dep] === 'undefined');
     }
 
     hideLoadingScreen() {
@@ -40,13 +49,14 @@ class Application {
         
         // Check if max attempts reached
         if (this.loadAttempts > this.maxLoadAttempts) {
-            console.error('❌ Failed to load dependencies');
-            this.showError('Không thể tải thư viện. Vui lòng kiểm tra kết nối internet và tải lại trang.');
+            const missingDeps = this.getMissingDependencies();
+            console.error('❌ Failed to load dependencies:', missingDeps);
+            this.showError(`Không thể tải thư viện: ${missingDeps.join(', ')}. <br>Vui lòng kiểm tra kết nối internet và tải lại trang.`);
             return;
         }
         
         // Wait for all dependencies to load
-        if (typeof Quill === 'undefined' || typeof i18n === 'undefined') {
+        if (!this.checkDependencies()) {
             setTimeout(() => this.init(), 100);
             return;
         }

@@ -5,7 +5,7 @@
 class MobileEventFix {
     constructor() {
         this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        this.debugMode = true; // Enable debug logging
+        this.debugMode = false; // Disable debug by default (enable with: window.mobileFix.debugMode = true)
         this.init();
     }
 
@@ -107,7 +107,7 @@ class MobileEventFix {
         let fixedCount = 0;
         buttons.forEach(button => {
             // Skip if already has touch handler
-            if (button.dataset.touchFixed) return;
+            if (button.dataset.touchFixed === 'true') return;
             button.dataset.touchFixed = 'true';
             fixedCount++;
             

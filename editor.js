@@ -19,25 +19,31 @@ class TextEditor {
 
     // Initialize Quill Editor with custom configuration
     initializeQuill() {
-        // Custom Font class with proper CSS class names
-        const Font = Quill.import('formats/font');
-        Font.whitelist = [
-            'arial', 'times', 'verdana', 'georgia', 'tahoma',
-            'battambang', 'bayon', 'content', 'dangrek', 'hanuman',
-            'kantumruy', 'khmer', 'koulen', 'metal', 'moul',
-            'moulpali', 'nokora', 'odor', 'preahvihear',
-            'siemreap', 'suwannaphum', 'taprom'
-        ];
-        Quill.register(Font, true);
+        try {
+            // Check if Quill is loaded
+            if (typeof Quill === 'undefined') {
+                throw new Error('Quill library not loaded');
+            }
 
-        // Register custom Size class
-        const Size = Quill.import('attributors/style/size');
-        Size.whitelist = ['8px', '9px', '10px', '11px', '12px', '14px', '16px', 
-                          '18px', '20px', '22px', '24px', '28px', '32px', '36px', 
-                          '48px', '72px'];
-        Quill.register(Size, true);
+            // Custom Font class with proper CSS class names
+            const Font = Quill.import('formats/font');
+            Font.whitelist = [
+                'arial', 'times', 'verdana', 'georgia', 'tahoma',
+                'battambang', 'bayon', 'content', 'dangrek', 'hanuman',
+                'kantumruy', 'khmer', 'koulen', 'metal', 'moul',
+                'moulpali', 'nokora', 'odor', 'preahvihear',
+                'siemreap', 'suwannaphum', 'taprom'
+            ];
+            Quill.register(Font, true);
 
-        this.quill = new Quill('#editor', {
+            // Register custom Size class
+            const Size = Quill.import('attributors/style/size');
+            Size.whitelist = ['8px', '9px', '10px', '11px', '12px', '14px', '16px', 
+                              '18px', '20px', '22px', '24px', '28px', '32px', '36px', 
+                              '48px', '72px'];
+            Quill.register(Size, true);
+
+            this.quill = new Quill('#editor', {
             theme: 'snow',
             modules: {
                 toolbar: false, // We'll use custom toolbar
@@ -61,6 +67,15 @@ class TextEditor {
         this.quill.format('size', '14px');
         
         console.log('✅ Editor initialized with fonts:', Font.whitelist);
+        } catch (error) {
+            console.error('❌ Failed to initialize Quill:', error);
+            // Show user-friendly error
+            const editorContainer = document.getElementById('editor');
+            if (editorContainer) {
+                editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #ff6b6b;"><i class="fas fa-exclamation-triangle"></i><br>Không thể khởi tạo trình soạn thảo.<br><small>Vui lòng tải lại trang.</small></div>';
+            }
+            throw error;
+        }
     }
 
     // Setup all toolbar button handlers

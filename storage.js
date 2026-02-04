@@ -56,8 +56,36 @@ class StorageManager {
         return documents[id] || null;
     }
 
+    // Check storage quota
+    checkStorageQuota() {
+        if (!this.storageAvailable) return { available: false, quota: 0, usage: 0 };
+        
+        try {
+            // Estimate storage usage
+            const data = localStorage.getItem(this.STORAGE_KEY) || '';
+            const usage = new Blob([data]).size;
+            const quota = 5 * 1024 * 1024; // Assume 5MB limit
+            const available = usage < quota * 0.9; // Warning at 90%
+            
+            return { available, quota, usage, percentage: (usage / quota * 100).toFixed(1) };
+        } catch (e) {
+            return { available: true, quota: 0, usage: 0 };
+        }
+    }
+
     // Save/Update document
     saveDocument(id, documentData) {
+        // Check storage first
+        if (!this.storageAvailable) {
+            showToast('Storage không khả dụng', 'error');
+            return false;
+        }
+
+        const storageInfo = this.checkStorageQuota();
+        if (!storageInfo.available) {
+            showToast(`Dung lượng sắp đầy (${storageInfo.percentage}%). Hãy xóa bớt tài liệu cũ.`, 'warning');
+        }
+
         try {
             const documents = this.getAllDocuments();
             
