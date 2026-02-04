@@ -1,6 +1,7 @@
 // ============================================
 // STORAGE MANAGER - LocalStorage Management
 // ============================================
+console.log('📦 storage.js loaded');
 
 // Check storage availability and suppress tracking prevention warnings
 (function checkStorageAvailability() {
@@ -9,6 +10,7 @@
             localStorage.setItem('__storage_test__', '1');
             localStorage.removeItem('__storage_test__');
         }
+        console.log('✅ Storage check passed');
     } catch (e) {
         console.warn('⚠️ Storage access limited, but app will continue');
     }
@@ -643,14 +645,19 @@ class DocumentManager {
 }
 
 // Initialize StorageManager and DocumentManager
+console.log('🔄 Creating StorageManager...');
 const storageManager = new StorageManager();
 let documentManager = null;
+console.log('✅ StorageManager instance created');
 
 // Make storageManager globally accessible
 if (typeof window !== 'undefined') {
     window.storageManager = storageManager;
+    console.log('✅ window.storageManager assigned');
+} else {
+    console.error('❌ window object not available');
 }
-console.log('✅ StorageManager created');
+console.log('✅ StorageManager created and ready');
 
 function initializeDocumentManager() {
     if (typeof editor !== 'undefined' && editor && editor.quill) {

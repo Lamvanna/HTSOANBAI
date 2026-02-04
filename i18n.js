@@ -1,6 +1,7 @@
 // ============================================
 // INTERNATIONALIZATION (i18n) - Multi-language Support
 // ============================================
+console.log('📦 i18n.js loaded');
 
 class I18n {
     constructor() {
@@ -468,11 +469,17 @@ class I18n {
 
 // Initialize i18n with error handling
 let i18n;
+console.log('🔄 Creating i18n...');
 try {
     i18n = new I18n();
+    console.log('✅ i18n instance created');
+    
     // Make it globally accessible
     if (typeof window !== 'undefined') {
         window.i18n = i18n;
+        console.log('✅ window.i18n assigned');
+    } else {
+        console.error('❌ window object not available');
     }
     console.log('✅ i18n initialized successfully');
 } catch (error) {
@@ -488,5 +495,6 @@ try {
     };
     if (typeof window !== 'undefined') {
         window.i18n = i18n;
+        console.log('✅ window.i18n assigned (fallback)');
     }
 }
