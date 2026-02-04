@@ -62,6 +62,11 @@ class Application {
         
         // Wait for all dependencies to load
         if (!this.checkDependencies()) {
+            // Log missing dependencies
+            const missing = this.getMissingDependencies();
+            if (this.loadAttempts === 1 || this.loadAttempts % 20 === 0) {
+                console.log(`⏳ Waiting for: ${missing.join(', ')}`);
+            }
             setTimeout(() => this.init(), 100);
             return;
         }

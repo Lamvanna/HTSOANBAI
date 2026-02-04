@@ -642,24 +642,28 @@ class DocumentManager {
     }
 }
 
-// Initialize storage and document manager
-let storageManager;
-let documentManager;
+// Initialize StorageManager and DocumentManager
+const storageManager = new StorageManager();
+let documentManager = null;
 
-// Wait for editor to be ready before initializing document manager
 function initializeDocumentManager() {
     if (typeof editor !== 'undefined' && editor && editor.quill) {
         console.log('✅ DocumentManager initializing...');
         documentManager = new DocumentManager();
         console.log('✅ DocumentManager initialized');
-    } else {
-        setTimeout(initializeDocumentManager, 100);
+        return true;
     }
+    return false;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ StorageManager initializing...');
-    storageManager = new StorageManager();
     console.log('✅ StorageManager initialized');
-    initializeDocumentManager();
+    // Try to initialize DocumentManager, retry if editor not ready
+    if (!initializeDocumentManager()) {
+        const checkInterval = setInterval(() => {
+            if (initializeDocumentManager()) {
+                clearInterval(checkInterval);
+            }
+        }, 100);
+    }
 });

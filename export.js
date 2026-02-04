@@ -528,8 +528,5 @@ class ExportManager {
     }
 }
 
-// Initialize export manager
-let exportManager;
-document.addEventListener('DOMContentLoaded', () => {
-    exportManager = new ExportManager();
-});
+// Initialize export manager immediately
+const exportManager = new ExportManager();

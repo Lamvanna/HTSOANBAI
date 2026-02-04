@@ -466,8 +466,5 @@ class I18n {
     }
 }
 
-// Initialize i18n
-let i18n;
-document.addEventListener('DOMContentLoaded', () => {
-    i18n = new I18n();
-});
+// Initialize i18n immediately (don't wait for DOMContentLoaded)
+const i18n = new I18n();

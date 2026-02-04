@@ -618,9 +618,10 @@ class TextEditor {
 }
 
 // Initialize editor
-let editor;
+const editor = new TextEditor();
+
+// Run additional setup when DOM ready
 document.addEventListener('DOMContentLoaded', () => {
-    editor = new TextEditor();
     console.log('✅ Editor initialized');
 });
 
