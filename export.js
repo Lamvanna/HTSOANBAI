@@ -232,21 +232,28 @@ class ExportManager {
             const title = fileName;
             const editorElement = document.querySelector('.ql-editor');
 
+            // Detect if mobile for different sizing
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const pdfWidth = 794; // A4 width in pixels at 96 DPI
+            const pdfPadding = 76; // 20mm margins
+
             // Create a temporary container for rendering with better styling
             const tempContainer = document.createElement('div');
             tempContainer.style.cssText = `
                 position: absolute;
                 left: -9999px;
                 top: 0;
-                width: 794px;
+                width: ${pdfWidth}px;
                 min-height: 1123px;
                 background-color: white;
-                padding: 95px 76px;
+                padding: 95px ${pdfPadding}px;
                 box-sizing: border-box;
                 font-family: Arial, sans-serif;
                 font-size: 14px;
-                line-height: 1.6;
+                line-height: 1.8;
                 color: #000000;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
             `;
             
             // Clone editor content with better formatting
@@ -325,9 +332,7 @@ class ExportManager {
             const pdfUrl = URL.createObjectURL(pdfBlob);
             const downloadFileName = `${this.sanitizeFilename(title)}.pdf`;
             
-            // Check if mobile device
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
+            // Use isMobile from earlier in function
             if (isMobile) {
                 // Try to open in new tab
                 const newWindow = window.open(pdfUrl, '_blank');
@@ -477,9 +482,15 @@ class ExportManager {
                 el.style.textDecoration = computedStyle.textDecoration;
             }
             
-            // Preserve text alignment
-            if (computedStyle.textAlign && computedStyle.textAlign !== 'start') {
-                el.style.textAlign = computedStyle.textAlign;
+            // IMPORTANT: Preserve ALL text alignment including justify
+            const textAlign = computedStyle.textAlign;
+            if (textAlign && textAlign !== 'start') {
+                el.style.textAlign = textAlign;
+                // Force justify to work properly
+                if (textAlign === 'justify') {
+                    el.style.textJustify = 'inter-word';
+                    el.style.hyphens = 'auto';
+                }
             }
             
             // Preserve colors
@@ -491,10 +502,15 @@ class ExportManager {
                 el.style.backgroundColor = computedStyle.backgroundColor;
             }
             
-            // Preserve line height for better Khmer text rendering
+            // Preserve line height for better text rendering
             if (computedStyle.lineHeight) {
                 el.style.lineHeight = computedStyle.lineHeight;
             }
+            
+            // Better word wrapping
+            el.style.wordWrap = 'break-word';
+            el.style.overflowWrap = 'break-word';
+            el.style.wordBreak = 'normal';
             
             // Add anti-aliasing for better text quality
             el.style.webkitFontSmoothing = 'antialiased';
