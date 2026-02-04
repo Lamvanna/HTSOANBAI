@@ -646,10 +646,20 @@ class DocumentManager {
 const storageManager = new StorageManager();
 let documentManager = null;
 
+// Make storageManager globally accessible
+if (typeof window !== 'undefined') {
+    window.storageManager = storageManager;
+}
+console.log('✅ StorageManager created');
+
 function initializeDocumentManager() {
     if (typeof editor !== 'undefined' && editor && editor.quill) {
         console.log('✅ DocumentManager initializing...');
         documentManager = new DocumentManager();
+        // Make documentManager globally accessible
+        if (typeof window !== 'undefined') {
+            window.documentManager = documentManager;
+        }
         console.log('✅ DocumentManager initialized');
         return true;
     }

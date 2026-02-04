@@ -637,6 +637,11 @@ class TextEditor {
 // Initialize editor (create instance immediately but init when DOM ready)
 const editor = new TextEditor();
 
+// Make editor globally accessible
+if (typeof window !== 'undefined') {
+    window.editor = editor;
+}
+
 // Start initialization when DOM ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {

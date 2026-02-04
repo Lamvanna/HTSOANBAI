@@ -530,3 +530,9 @@ class ExportManager {
 
 // Initialize export manager immediately
 const exportManager = new ExportManager();
+
+// Make exportManager globally accessible
+if (typeof window !== 'undefined') {
+    window.exportManager = exportManager;
+}
+console.log('✅ ExportManager created');
