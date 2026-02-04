@@ -466,5 +466,27 @@ class I18n {
     }
 }
 
-// Initialize i18n immediately (don't wait for DOMContentLoaded)
-const i18n = new I18n();
+// Initialize i18n with error handling
+let i18n;
+try {
+    i18n = new I18n();
+    // Make it globally accessible
+    if (typeof window !== 'undefined') {
+        window.i18n = i18n;
+    }
+    console.log('✅ i18n initialized successfully');
+} catch (error) {
+    console.error('❌ Failed to initialize i18n:', error);
+    // Create minimal fallback
+    i18n = {
+        currentLanguage: 'vi',
+        translate: function(key) { return key || ''; },
+        setLanguage: function() {},
+        getCurrentLanguage: function() { return 'vi'; },
+        addTranslation: function() {},
+        addTranslations: function() {}
+    };
+    if (typeof window !== 'undefined') {
+        window.i18n = i18n;
+    }
+}
