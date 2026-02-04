@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        h1 { margin-bottom: 20px; font-size: 24px; }
+        .status {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        .pass { background: rgba(0,255,0,0.2); border-left: 4px solid #0f0; }
+        .fail { background: rgba(255,0,0,0.2); border-left: 4px solid #f00; }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: white;
+            color: #667eea;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        pre {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .loading { text-align: center; padding: 20px; }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>📱 Mobile Test Page</h1>
+    <div id="status" class="loading">
+        <div class="spinner"></div>
+        <p>Đang load scripts...</p>
+    </div>
+    <button onclick="runTest()" id="testBtn" style="display:none">🔄 Test Lại</button>
+    <button onclick="window.location.href='index.html'" style="display:none" id="mainBtn">🏠 Vào App</button>
+    <pre id="logs"></pre>
+
+    <script>
+        const logs = [];
+        const statusDiv = document.getElementById('status');
+        const logsDiv = document.getElementById('logs');
+        
+        function log(msg) {
+            logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+            logsDiv.textContent = logs.join('\n');
+            console.log(msg);
+        }
+        
+        // Intercept console
+        ['log', 'error', 'warn'].forEach(method => {
+            const orig = console[method];
+            console[method] = function(...args) {
+                log(`[${method}] ${args.join(' ')}`);
+                orig.apply(console, args);
+            };
+        });
+        
+        function test(name, condition) {
+            const div = document.createElement('div');
+            div.className = `status ${condition ? 'pass' : 'fail'}`;
+            div.innerHTML = `<strong>${condition ? '✅' : '❌'} ${name}</strong>`;
+            statusDiv.appendChild(div);
+            return condition;
+        }
+        
+        function runTest() {
+            statusDiv.innerHTML = '<h3>Kết quả kiểm tra:</h3>';
+            
+            const results = {
+                window: test('window object', typeof window !== 'undefined'),
+                Quill: test('Quill library', typeof Quill !== 'undefined'),
+                i18n_var: test('i18n variable', typeof i18n !== 'undefined'),
+                i18n_window: test('window.i18n', typeof window.i18n !== 'undefined'),
+                storage_var: test('storageManager variable', typeof storageManager !== 'undefined'),
+                storage_window: test('window.storageManager', typeof window.storageManager !== 'undefined'),
+                editor_var: test('editor variable', typeof editor !== 'undefined'),
+                editor_window: test('window.editor', typeof window.editor !== 'undefined')
+            };
+            
+            const allPass = Object.values(results).every(r => r);
+            
+            const summary = document.createElement('div');
+            summary.className = `status ${allPass ? 'pass' : 'fail'}`;
+            summary.innerHTML = `<h3>${allPass ? '✅ TẤT CẢ OK!' : '❌ CÓ LỖI'}</h3>
+                ${allPass ? '<p>App sẽ hoạt động bình thường</p>' : '<p>Cần fix thêm</p>'}`;
+            statusDiv.appendChild(summary);
+            
+            document.getElementById('testBtn').style.display = 'block';
+            document.getElementById('mainBtn').style.display = 'block';
+            
+            if (allPass && window.i18n && window.i18n.translate) {
+                log('Testing i18n.translate("appName"): ' + window.i18n.translate('appName'));
+            }
+        }
+    </script>
+    
+    <!-- Load CDN with cache bust -->
+    <script>
+        const v = Date.now();
+        log(`Cache bust version: ${v}`);
+    </script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js" onload="log('✅ Quill loaded')" onerror="log('❌ Quill failed')"></script>
+    
+    <!-- Load local scripts with cache bust -->
+    <script>
+        function loadScript(src, name) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src + '?v=' + Date.now();
+                script.onload = () => {
+                    log(`✅ ${name} loaded`);
+                    resolve();
+                };
+                script.onerror = () => {
+                    log(`❌ ${name} failed`);
+                    reject();
+                };
+                document.body.appendChild(script);
+            });
+        }
+        
+        async function loadAll() {
+            try {
+                await loadScript('i18n.js', 'i18n.js');
+                await new Promise(r => setTimeout(r, 100));
+                
+                await loadScript('storage.js', 'storage.js');
+                await new Promise(r => setTimeout(r, 100));
+                
+                await loadScript('editor.js', 'editor.js');
+                await new Promise(r => setTimeout(r, 100));
+                
+                log('All scripts loaded, running test...');
+                setTimeout(runTest, 500);
+            } catch (error) {
+                log('ERROR loading scripts: ' + error);
+                statusDiv.innerHTML = '<div class="status fail"><h3>❌ Lỗi load scripts</h3><p>Kiểm tra kết nối internet</p></div>';
+                document.getElementById('testBtn').style.display = 'block';
+            }
+        }
+        
+        // Start loading
+        setTimeout(loadAll, 1000);
+    </script>
+</body>
+</html>

@@ -710,28 +710,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
     
-    <!-- Custom Scripts -->
-    <script src="mobile-fix.js"></script>
-    <script src="i18n.js"></script>
-    <!-- Verify i18n immediately after loading -->
+    <!-- Cache busting for mobile -->
     <script>
-        console.log('🔍 After i18n.js:', {
-            'typeof window.i18n': typeof window.i18n,
-            'window.i18n exists': !!window.i18n,
-            'i18n variable': typeof i18n !== 'undefined' ? 'exists' : 'undefined'
-        });
+        window.APP_VERSION = Date.now();
+        console.log('📦 App version:', window.APP_VERSION);
     </script>
-    <script src="storage.js"></script>
-    <!-- Verify storage immediately after loading -->
+    
+    <!-- Custom Scripts with cache busting -->
     <script>
-        console.log('🔍 After storage.js:', {
-            'typeof window.storageManager': typeof window.storageManager,
-            'window.storageManager exists': !!window.storageManager,
-            'storageManager variable': typeof storageManager !== 'undefined' ? 'exists' : 'undefined'
-        });
+        (function() {
+            const v = window.APP_VERSION;
+            const scripts = ['mobile-fix.js', 'i18n.js', 'storage.js', 'editor.js', 'export.js', 'app.js'];
+            scripts.forEach(src => {
+                document.write(`<script src="${src}?v=${v}"><\/script>`);
+            });
+        })();
     </script>
-    <script src="editor.js"></script>
-    <script src="export.js"></script>
-    <script src="app.js"></script>
+    <!-- Verification will run in app.js -->
 </body>
 </html>
